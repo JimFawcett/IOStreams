@@ -1,0 +1,3 @@
+﻿  READWRIT.CPP
+READWRIT.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
+  readwrite.vcxproj -> C:\github\JimFawcett\iostreams\readwrite\.\Debug\readwrite.exe
