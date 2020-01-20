@@ -1,3 +1,1 @@
-﻿  STRIO.CPP
-STRIO.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/SAFESEH' specification
-  stringIO.vcxproj -> C:\github\JimFawcett\iostreams\stringIO\.\Debug\stringIO.exe
+﻿

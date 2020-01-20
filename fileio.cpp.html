@@ -1,0 +1,123 @@
+<pre>///////////////////////////////////////////////////////////////
+// fileio.cpp - demonstrate fstreams                         //
+//                                                           //
+// Jim Fawcett, 24 Mar 96, modified 04 Mar 02                //
+///////////////////////////////////////////////////////////////
+
+#include &lt;iostream&gt;     // cout, &lt;&lt;
+#include &lt;fstream&gt;      // ifstream(), &lt;&lt;, &gt;&gt;
+#include &lt;cstdlib&gt;      // exit(1);
+#include &lt;sstream&gt;
+#include &lt;string&gt;
+using namespace std;
+
+//----&lt; display titles &gt;---------------------------------------
+
+void title(const char *t, char ul = '-', ostream &amp;out = cout) {
+
+  int len = strlen(t) + 2;
+  string line(len,ul);
+  if(ul == '=')
+    out &lt;&lt; "\n " &lt;&lt; line;
+  out &lt;&lt; "\n  " &lt;&lt; t
+      &lt;&lt; "\n " &lt;&lt; line &lt;&lt; endl;
+}
+
+//----&lt; begin demonstration &gt;----------------------------------
+
+void main(int argc, char *argv[]) {
+
+  /////////////////////////////////////////////////
+  title("Demonstrating Basic File Operations",'=');
+  /////////////////////////////////////////////////
+
+  if(argc &lt; 2) {
+    cout &lt;&lt; "\nplease enter name of text file on command line\n\n";
+    exit(1);
+  }
+  const int bufSize = 80;
+  char buffer[bufSize];
+
+//
+
+  // create a scope with { } and define an input stream inside
+  // then read line-by-line and send to standard output
+  {
+    ifstream in(argv[argc-1]);
+    if(!in.good()) {
+      cout &lt;&lt; "can't open file " &lt;&lt; argv[argc-1] &lt;&lt; endl;
+      exit(1);
+    }
+    else {
+      ostringstream temp;
+      temp &lt;&lt; "processing file " &lt;&lt; argv[argc-1]
+           &lt;&lt; " using istream::getline()";
+
+      title(temp.str().c_str());
+      //////////////////////////
+    }
+
+    while(in.good()) {
+      in.getline(buffer,bufSize);
+      cout &lt;&lt; buffer &lt;&lt; endl;
+    }
+  }  // in goes out of scope and is destroyed
+
+  // define stream again at global level, get pointer to
+  // its filebuf and stream input directly to output
+
+  ostringstream temp;
+  temp &lt;&lt; "processing file " &lt;&lt; argv[argc-1]
+       &lt;&lt; " using filebuf::rdbuf()";
+  title(temp.str().c_str());
+  //////////////////////////
+  
+  ifstream in(argv[argc-1]);
+  filebuf *bptr = in.rdbuf();    // get pointer to stream
+  cout &lt;&lt; bptr &lt;&lt; endl;          // stream input to output
+  in.close();                    // still in scope so close it
+
+//
+
+  // open stream again, seek to end to find size, and
+  // backup half way, then send last half to stdout
+
+  in.open(argv[argc-1]);         // open it again
+  in.seekg(0, ios::end);         // go to end of file
+  streampos sp = in.tellg();     // size = number of bytes from beg
+  in.seekg(-sp/2, ios::end);     // go to middle
+  in.getline(buffer,bufSize);    // go to next newline
+
+  ostringstream temp2;
+  temp2 &lt;&lt; "processing last half of this " &lt;&lt; sp &lt;&lt; " byte file";
+  title(temp2.str().c_str());
+  ///////////////////////////
+
+  cout &lt;&lt; in.rdbuf() &lt;&lt; endl;    // output from that point to end
+
+  title("stream state goes bad when attempting to read past end of file");
+  ////////////////////////////////////////////////////////////////////////
+
+  char ch;
+  in &gt;&gt; ch;
+  if(!in.good())
+    cout &lt;&lt; "  attempting to read past EOF makes stream state"
+         &lt;&lt; " not good\n";
+
+  title("can't read any more until we clear stream to good state");
+  /////////////////////////////////////////////////////////////////
+
+  in.clear();
+  if(in.good())
+    cout &lt;&lt; "  stream state good after clear()\n";
+  in.seekg(-1,ios::end);         // back up to good char
+  in &gt;&gt; ch;
+  if(in.good())
+    cout &lt;&lt; "  after backing up and reading " &lt;&lt; ch
+         &lt;&lt; " stream state still good\n";
+  in &gt;&gt; ch;
+  if(!in.good())
+    cout &lt;&lt; "  after reading EOF stream state not good again\n";
+  cout &lt;&lt; endl;
+}
+</pre>

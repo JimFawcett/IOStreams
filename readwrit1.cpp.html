@@ -1,0 +1,86 @@
+<pre>///////////////////////////////////////////////////////////////
+// readwrit.cpp - demonstrate read/write fstreams            //
+//                with buffer location seeking               //
+// Jim Fawcett, 24 Mar 96, modified 23 Mar 97                //
+///////////////////////////////////////////////////////////////
+
+#include &lt;iostream&gt;     // cout, &lt;&lt;
+#include &lt;fstream&gt;      // ifstream(), &lt;&lt;, &gt;&gt;
+#include &lt;cstdlib&gt;      // exit(1);
+#include &lt;string&gt;
+using namespace std;
+
+//----&lt; display titles &gt;---------------------------------------
+
+void title(const char *t, char ul = '-', ostream &amp;out = cout) {
+
+  int len = strlen(t) + 2;
+  string line(len,ul);
+  if(ul == '=')
+    out &lt;&lt; "\n " &lt;&lt; line;
+  out &lt;&lt; "\n  " &lt;&lt; t
+      &lt;&lt; "\n " &lt;&lt; line &lt;&lt; endl;
+}
+
+//----&lt; begin demonstration &gt;----------------------------------
+
+void main(int argc, char *argv[]) {
+
+  ///////////////////////////////////////////////////////////////
+  title("Demonstration of Reading AND Writing to a Common File",'=');
+  ///////////////////////////////////////////////////////////////
+
+  if(argc &lt; 2) {
+    cout &lt;&lt; "please enter file name on command line\n";
+    exit(1);
+  }
+
+//
+
+  ///////////////////////////////////////////////////////////////
+  // file open modes:        in       out       app       ate  //
+  //                             nocreate noreplace     trunc  //
+  ///////////////////////////////////////////////////////////////
+
+  // save input file contents in a temporary file 
+  // for reading and writing
+
+  ifstream masterin(argv[argc-1]);
+  ofstream tempout("tmp.tmp");
+  tempout &lt;&lt; masterin.rdbuf();
+  masterin.close();
+  tempout.close();
+
+  // open temporary for input AND output processing
+  ifstream in("tmp.tmp", ios::in|ios::out);
+  if(!in.good()) {
+    cout &lt;&lt; "can't open file tmp.tmp" &lt;&lt; endl;
+    exit(1);
+  }
+
+  // use input stream buffer for output stream too
+  ostream out(in.rdbuf());
+
+  // now, try reading and writing
+  
+  title("this is a test file for reading and writing");
+  /////////////////////////////////////////////////////
+
+  cout &lt;&lt; in.rdbuf();
+  out &lt;&lt; "---\nthis text is added to the end\n";
+
+  // how many bytes in file?
+  streampos sp = out.tellp();
+  out.seekp(-sp, ios::end);            // back up from end
+  out &lt;&lt; "this text overwrites beginning of file\n";
+  cout &lt;&lt; endl;
+
+  // write it out to see what happened
+ 
+  title("modified file:");
+  ////////////////////////
+
+  in.seekg(ios::beg);                  // go to beginning
+  cout &lt;&lt; in.rdbuf() &lt;&lt; endl;
+}
+</pre>

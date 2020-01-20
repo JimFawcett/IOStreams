@@ -1,0 +1,69 @@
+<pre>/////////////////////////////////////////////////////////////////
+// filebuf.cpp                                                 //
+//   demonstrate low level input and output using streambufs   //
+//   built from FILE pointer and stdout                        //
+//                                                             //
+// Jim Fawcett, 24 Mar 96, modified 23 Mar 97, 01 Mar 04       //
+/////////////////////////////////////////////////////////////////
+
+#include &lt;iostream&gt;    // cout, &lt;&lt;
+#include &lt;fstream&gt;     // ifstream(), &lt;&lt;, &gt;&gt;
+using namespace std;
+
+//----&lt; display titles &gt;---------------------------------------
+
+void title(const char *t, char ul = '-', ostream &amp;out = cout) {
+
+  int len = strlen(t) + 2;
+  std::string line(len,ul);
+  if(ul == '=')
+    out &lt;&lt; "\n " &lt;&lt; line.c_str();
+  out &lt;&lt; "\n  " &lt;&lt; t
+      &lt;&lt; "\n " &lt;&lt; line.c_str() &lt;&lt; endl;
+}
+
+//----&lt; begin demonstration &gt;----------------------------------
+
+void main(int argc, char *argv[]) {
+
+  //////////////////////////////////////////////////////////////
+  title("Demonstrating use of Stream Buffers with File IO",'=');
+  //////////////////////////////////////////////////////////////
+
+  if(argc &lt; 2) {
+    cout &lt;&lt; "\nplease enter name of text file on command line\n";
+    exit(1);
+  }
+
+  title("using streambuf for input from file");
+  /////////////////////////////////////////////
+
+  filebuf ifb;                       // create filebuf
+  ifb.open(argv[argc-1],ios::in);    // attach to file
+  cout &lt;&lt; &amp;ifb &lt;&lt; endl;              // stream to cout
+  cout.flush();
+//
+  title("using streambuf for output to stdout");
+  //////////////////////////////////////////////
+
+  istream in(&amp;ifb);            // make stream in, attached to ifb
+  in.seekg(0);                 // move to top of input buffer
+  ostream out(cout.rdbuf());   // make stream out, attached to cout streambuf
+  out &lt;&lt; &amp;ifb &lt;&lt; endl;         // stream it to out
+  out.flush();
+
+// could replace last statement with the lower level
+// gets and puts shown below
+
+  title("using low-level streambuf interface for output to stdout");
+  //////////////////////////////////////////////////////////////////
+
+  streambuf* pOfb = cout.rdbuf();
+  in.seekg(0);
+  char ch;
+  while((ch = ifb.sbumpc()) != EOF)
+    pOfb-&gt;sputc(ch);
+
+  cout &lt;&lt; "\n\n";
+}
+</pre>
